@@ -1,0 +1,52 @@
+package com;
+
+//Question3
+//How does a thread transition from one state to another?
+
+public class Question3 {
+	public static void main(String[] args) {
+		ThreadStateDemo thread = new ThreadStateDemo();
+		System.out.println("State after creation: " + thread.getState()); // NEW
+
+		thread.start();
+		System.out.println("State after calling start(): " + thread.getState()); // RUNNABLE
+
+		try {
+			Thread.sleep(100); // Give some time for the thread to enter RUNNABLE state
+			System.out.println("State while running: " + thread.getState()); // TIMED_WAITING or RUNNABLE
+
+			synchronized (thread) {
+				thread.notify(); // Move the thread out of waiting state
+			}
+
+			Thread.sleep(100); // Give some time for the thread to complete
+			System.out.println("State after completion: " + thread.getState()); // TERMINATED
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+}
+
+class ThreadStateDemo extends Thread {
+	@Override
+	public void run() {
+		synchronized (this) {
+			try {
+				System.out.println("Thread is going to WAITING state");
+				wait(); // WAITING
+				System.out.println("Thread is back to RUNNABLE state after waiting");
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+
+		try {
+			System.out.println("Thread is going to sleep for 1 second");
+			Thread.sleep(1000); // TIMED_WAITING
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		System.out.println("Thread is completing its execution");
+	}
+}
